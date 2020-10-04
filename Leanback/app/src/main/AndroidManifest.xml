@@ -25,6 +25,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="com.android.providers.tv.permission.WRITE_EPG_DATA" />
 
     <uses-feature
         android:name="android.hardware.microphone"
@@ -137,6 +138,27 @@
         <activity
             android:name=".ui.AuthenticationActivity"
             android:theme="@style/Theme.Example.Leanback.GuidedStep" />
+
+        <activity android:name=".AppLinkActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <!-- Accepts URIs that begin with "tvrecommendation://app". -->
+                <data
+                    android:host="@string/host"
+                    android:scheme="@string/schema" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".SyncChannelJobService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <service
+            android:name=".SyncProgramsJobService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 
 </manifest>
