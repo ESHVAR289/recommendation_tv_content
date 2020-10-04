@@ -123,4 +123,25 @@
     <string name="pref_key_login">pref_login</string>
     <string name="pref_title_login">Login</string>
     <string name="playback_tag">PLAYBACK_TAG</string>
+    <string name="channel_added">Channel added</string>
+    <string name="channel_not_added">Channel not added</string>
+    <string name="title_tv_shows">Your TV Shows</string>
+    <string name="your_videos">Your Videos</string>
+    <string name="cat_videos">Cat Videos</string>
+    <string name="new_for_you">New for You</string>
+    <string name="new_for_you_description">These are recommended programs that we think you will like.</string>
+    <string name="trending_videos">Trending Videos</string>
+    <string name="trending_videos_description">These are trending videos from our app.</string>
+    <string name="featured_films">Featured Films</string>
+    <string name="featured_films_description">These are featured films that have been rated highly from our staff.</string>
+    <string name="tv_shows">TV Shows</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="video_clips">Video Clips</string>
+    <string name="tv_shows_description">These are TV shows that you have added to your TV Show List.</string>
+    <string name="your_videos_description">These are videos that you have added to your Video List.</string>
+    <string name="cat_videos_description">These are cat videos that you may or may not even like.</string>
+    <string name="button_instructions">Click on the buttons to see how to prompt users for dynamic channels.</string>
+    <string name="implement_movie_presenter_here">Implement movie presenter here.</string>
+    <string name="schema">tvrecommendation</string>
+    <string name="host">app</string>
 </resources>
