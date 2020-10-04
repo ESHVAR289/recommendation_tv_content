@@ -27,6 +27,10 @@ public class VideoDetailsActivity extends LeanbackActivity {
     public static final String SHARED_ELEMENT_NAME = "hero";
     public static final String VIDEO = "Video";
     public static final String NOTIFICATION_ID = "NotificationId";
+    public static final String EXTRA_CHANNEL_ID =
+            "com.example.android.tv.recommendations.extra.CHANNEL_ID";
+    public static final String EXTRA_POSITION =
+            "com.example.android.tv.recommendations.extra.POSITION";
 
     /**
      * Called when the activity is first created.

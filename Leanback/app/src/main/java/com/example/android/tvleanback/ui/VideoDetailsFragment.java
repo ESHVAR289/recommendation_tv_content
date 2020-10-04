@@ -17,6 +17,7 @@
 package com.example.android.tvleanback.ui;
 
 import android.app.NotificationManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -24,8 +25,10 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,6 +60,7 @@ import androidx.leanback.widget.SparseArrayObjectAdapter;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
+import androidx.tvprovider.media.tv.TvContractCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -64,10 +68,18 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.android.tvleanback.R;
 import com.example.android.tvleanback.data.VideoContract;
+import com.example.android.tvleanback.model.MockDatabase;
+import com.example.android.tvleanback.model.Subscription;
 import com.example.android.tvleanback.model.Video;
 import com.example.android.tvleanback.model.VideoCursorMapper;
 import com.example.android.tvleanback.presenter.CardPresenter;
 import com.example.android.tvleanback.presenter.DetailsDescriptionPresenter;
+import com.example.android.tvleanback.util.TvUtil;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static android.app.Activity.RESULT_OK;
 
 /*
  * VideoDetailsFragment extends DetailsFragment, a Wrapper fragment for leanback details screens.
@@ -76,11 +88,14 @@ import com.example.android.tvleanback.presenter.DetailsDescriptionPresenter;
 public class VideoDetailsFragment extends DetailsSupportFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    private static final String TAG = VideoDetailsFragment.class.getSimpleName();
+
     private static final int NO_NOTIFICATION = -1;
     private static final int ACTION_SUBSCRIBE_TO_CHANNEL = 1;
     private static final int ACTION_WATCH_TRAILER = 2;
     private static final int ACTION_RENT = 3;
     private static final int ACTION_BUY = 4;
+    private static final int MAKE_BROWSABLE_REQUEST_CODE = 9001;
 
     // ID for loader that loads related videos.
     private static final int RELATED_VIDEO_LOADER = 1;
@@ -209,6 +224,12 @@ public class VideoDetailsFragment extends DetailsSupportFragment
                     intent.putExtra(VideoDetailsActivity.VIDEO, mSelectedVideo);
                     startActivity(intent);
                 } else if (action.getId() == ACTION_SUBSCRIBE_TO_CHANNEL) {
+                    Subscription subscription = new Subscription();
+                    subscription.setName(mSelectedVideo.title);
+                    subscription.setDescription(mSelectedVideo.description);
+                    subscription.setAppLinkIntentUri(mSelectedVideo.videoUrl);
+                    subscription.setChannelLogo(R.drawable.tv_d_00033);
+                    new AddChannelTask(getContext().getApplicationContext()).execute(subscription);
                     Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
@@ -377,10 +398,30 @@ public class VideoDetailsFragment extends DetailsSupportFragment
         mAdapter.add(new ListRow(header, mVideoCursorAdapter));
     }
 
+    private void promptUserToDisplayChannel(long channelId) {
+        Intent intent = new Intent(TvContractCompat.ACTION_REQUEST_CHANNEL_BROWSABLE);
+        intent.putExtra(TvContractCompat.EXTRA_CHANNEL_ID, channelId);
+        try {
+            this.startActivityForResult(intent, MAKE_BROWSABLE_REQUEST_CODE);
+        } catch (ActivityNotFoundException e) {
+            Log.e(TAG, "Could not start activity: " + intent.getAction(), e);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            Toast.makeText(getActivity(), R.string.channel_added, Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(getActivity(), R.string.channel_not_added, Toast.LENGTH_LONG).show();
+        }
+    }
+
     private final class ItemViewClickedListener implements OnItemViewClickedListener {
         @Override
         public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
-                RowPresenter.ViewHolder rowViewHolder, Row row) {
+                                  RowPresenter.ViewHolder rowViewHolder, Row row) {
 
             if (item instanceof Video) {
                 Video video = (Video) item;
@@ -393,6 +434,39 @@ public class VideoDetailsFragment extends DetailsSupportFragment
                         VideoDetailsActivity.SHARED_ELEMENT_NAME).toBundle();
                 getActivity().startActivity(intent, bundle);
             }
+        }
+    }
+
+    private class AddChannelTask extends AsyncTask<Subscription, Void, Long> {
+
+        private final Context mContext;
+
+        AddChannelTask(Context context) {
+            this.mContext = context;
+        }
+
+        @Override
+        protected Long doInBackground(Subscription... varArgs) {
+            List<Subscription> subscriptions = Arrays.asList(varArgs);
+            if (subscriptions.size() != 1) {
+                return -1L;
+            }
+            Subscription subscription = subscriptions.get(0);
+            // TODO: step 16 create channel. Replace declaration with code from code lab.
+            long channelId = TvUtil.createChannel(mContext, subscription);
+
+            subscription.setChannelId(channelId);
+            MockDatabase.saveSubscription(mContext, subscription);
+            // Scheduler listen on channel's uri. Updates after the user interacts with the system
+            // dialog.
+            TvUtil.scheduleSyncingProgramsForChannel(getContext().getApplicationContext(), channelId);
+            return channelId;
+        }
+
+        @Override
+        protected void onPostExecute(Long channelId) {
+            super.onPostExecute(channelId);
+            promptUserToDisplayChannel(channelId);
         }
     }
 }
