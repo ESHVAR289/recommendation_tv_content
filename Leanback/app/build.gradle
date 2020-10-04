@@ -34,6 +34,11 @@ dependencies {
 
     implementation 'com.google.android.exoplayer:exoplayer:2.6.1'
     implementation 'com.google.android.exoplayer:extension-leanback:2.6.1'
+    // New support library to for channels/programs development.
+    implementation 'com.android.support:support-tv-provider:28.0.0'
+    implementation 'com.github.bumptech.glide:glide:3.8.0'
+
+    implementation 'com.google.code.gson:gson:2.8.0'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.robolectric:robolectric:3.8'
