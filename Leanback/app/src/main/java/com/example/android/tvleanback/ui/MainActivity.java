@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 
 import com.example.android.tvleanback.R;
+import com.example.android.tvleanback.util.TvUtil;
 
 /*
  * MainActivity class that loads MainFragment.
@@ -36,5 +37,6 @@ public class MainActivity extends LeanbackActivity {
             // This is the first time running the app, let's go to onboarding
             startActivity(new Intent(this, OnboardingActivity.class));
         }
+        TvUtil.scheduleSyncingChannel(this);
     }
 }
