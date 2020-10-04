@@ -25,6 +25,15 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.ContextCompat;
 import androidx.leanback.app.BackgroundManager;
 import androidx.leanback.app.DetailsSupportFragment;
 import androidx.leanback.widget.Action;
@@ -45,17 +54,9 @@ import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.SparseArrayObjectAdapter;
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.loader.app.LoaderManager;
-import androidx.core.content.ContextCompat;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
-import android.util.DisplayMetrics;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -76,9 +77,10 @@ public class VideoDetailsFragment extends DetailsSupportFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int NO_NOTIFICATION = -1;
-    private static final int ACTION_WATCH_TRAILER = 1;
-    private static final int ACTION_RENT = 2;
-    private static final int ACTION_BUY = 3;
+    private static final int ACTION_SUBSCRIBE_TO_CHANNEL = 1;
+    private static final int ACTION_WATCH_TRAILER = 2;
+    private static final int ACTION_RENT = 3;
+    private static final int ACTION_BUY = 4;
 
     // ID for loader that loads related videos.
     private static final int RELATED_VIDEO_LOADER = 1;
@@ -206,6 +208,8 @@ public class VideoDetailsFragment extends DetailsSupportFragment
                     Intent intent = new Intent(getActivity(), PlaybackActivity.class);
                     intent.putExtra(VideoDetailsActivity.VIDEO, mSelectedVideo);
                     startActivity(intent);
+                } else if (action.getId() == ACTION_SUBSCRIBE_TO_CHANNEL) {
+                    Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
                 }
@@ -344,6 +348,9 @@ public class VideoDetailsFragment extends DetailsSupportFragment
 
         SparseArrayObjectAdapter adapter = new SparseArrayObjectAdapter();
 
+        adapter.set(ACTION_SUBSCRIBE_TO_CHANNEL,
+                new Action(ACTION_SUBSCRIBE_TO_CHANNEL,
+                        getResources().getString(R.string.label_action_subscription)));
         adapter.set(ACTION_WATCH_TRAILER, new Action(ACTION_WATCH_TRAILER, getResources()
                 .getString(R.string.watch_trailer_1),
                 getResources().getString(R.string.watch_trailer_2)));
