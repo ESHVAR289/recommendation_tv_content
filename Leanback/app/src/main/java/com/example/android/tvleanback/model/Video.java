@@ -32,6 +32,26 @@ public final class Video implements Parcelable {
     public final String cardImageUrl;
     public final String videoUrl;
     public final String studio;
+    // Program id / Watch Next id returned from the TV Provider.
+    private long programId;
+    private long watchNextId;
+
+    public long getProgramId() {
+        return programId;
+    }
+
+    public void setProgramId(long programId) {
+        this.programId = programId;
+    }
+
+    public long getWatchNextId() {
+        return watchNextId;
+    }
+
+    public void setWatchNextId(long watchNextId) {
+        this.watchNextId = watchNextId;
+    }
+
 
     private Video(
             final long id,
