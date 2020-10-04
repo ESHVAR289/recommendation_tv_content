@@ -23,7 +23,7 @@ import android.util.Log;
 import androidx.tvprovider.media.tv.TvContractCompat;
 
 import com.example.android.tvleanback.model.MockDatabase;
-import com.example.android.tvleanback.model.MockMovieService;
+import com.example.android.tvleanback.model.MockVideoService;
 import com.example.android.tvleanback.model.Subscription;
 import com.example.android.tvleanback.util.TvUtil;
 
@@ -81,7 +81,7 @@ public class SyncChannelJobService extends JobService {
                 Log.d(TAG, "Already loaded default channels into the provider");
             } else {
                 // Create subscriptions from mocked source.
-                subscriptions = MockMovieService.createUniversalSubscriptions(mContext);
+                subscriptions = MockVideoService.createUniversalSubscriptions(mContext);
                 for (Subscription subscription : subscriptions) {
                     long channelId = TvUtil.createChannel(mContext, subscription);
                     subscription.setChannelId(channelId);
