@@ -18,6 +18,7 @@ package com.example.android.tvleanback.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
@@ -33,10 +34,12 @@ public class MainActivity extends LeanbackActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if(!sharedPreferences.getBoolean(OnboardingFragment.COMPLETED_ONBOARDING, false)) {
+        if (!sharedPreferences.getBoolean(OnboardingFragment.COMPLETED_ONBOARDING, false)) {
             // This is the first time running the app, let's go to onboarding
             startActivity(new Intent(this, OnboardingActivity.class));
         }
-        TvUtil.scheduleSyncingChannel(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            TvUtil.scheduleSyncingChannel(this);
+        }
     }
 }

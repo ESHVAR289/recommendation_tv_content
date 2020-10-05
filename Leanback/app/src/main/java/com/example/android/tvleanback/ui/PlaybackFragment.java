@@ -159,27 +159,28 @@ public class PlaybackFragment extends VideoSupportFragment {
         mPlayerGlue = new VideoPlayerGlue(getActivity(), mPlayerAdapter, mPlaylistActionListener);
         mPlayerGlue.setHost(new VideoSupportFragmentGlueHost(this));
         mPlayerGlue.playWhenPrepared();
-        mPlayerGlue.addPlayerCallback(
-                new PlaybackGlue.PlayerCallback() {
-                    WatchNextAdapter watchNextAdapter = new WatchNextAdapter();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mPlayerGlue.addPlayerCallback(
+                    new PlaybackGlue.PlayerCallback() {
+                        WatchNextAdapter watchNextAdapter = new WatchNextAdapter();
 
-                    @Override
-                    public void onPlayStateChanged(PlaybackGlue glue) {
-                        super.onPlayStateChanged(glue);
-                        long position = mPlayerGlue.getCurrentPosition();
-                        long duration = mPlayerGlue.getDuration();
-                        watchNextAdapter.updateProgress(
-                                getContext(), mChannelId, mVideo, position, duration);
-                    }
+                        @Override
+                        public void onPlayStateChanged(PlaybackGlue glue) {
+                            super.onPlayStateChanged(glue);
+                            long position = mPlayerGlue.getCurrentPosition();
+                            long duration = mPlayerGlue.getDuration();
+                            watchNextAdapter.updateProgress(
+                                    getContext(), mChannelId, mVideo, position, duration);
+                        }
 
-                    @Override
-                    public void onPlayCompleted(PlaybackGlue glue) {
-                        super.onPlayCompleted(glue);
-                        watchNextAdapter.removeFromWatchNext(
-                                getContext(), mChannelId, mVideo);
-                    }
-                });
-
+                        @Override
+                        public void onPlayCompleted(PlaybackGlue glue) {
+                            super.onPlayCompleted(glue);
+                            watchNextAdapter.removeFromWatchNext(
+                                    getContext(), mChannelId, mVideo);
+                        }
+                    });
+        }
         play(mVideo);
 
         ArrayObjectAdapter mRowsAdapter = initializeRelatedVideosRow();

@@ -26,6 +26,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -229,8 +230,9 @@ public class VideoDetailsFragment extends DetailsSupportFragment
                     subscription.setDescription(mSelectedVideo.description);
                     subscription.setAppLinkIntentUri(mSelectedVideo.videoUrl);
                     subscription.setChannelLogo(R.drawable.tv_d_00033);
-                    new AddChannelTask(getContext().getApplicationContext()).execute(subscription);
-                    Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        new AddChannelTask(getContext().getApplicationContext()).execute(subscription);
+                    }
                 } else {
                     Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
                 }
@@ -452,7 +454,6 @@ public class VideoDetailsFragment extends DetailsSupportFragment
                 return -1L;
             }
             Subscription subscription = subscriptions.get(0);
-            // TODO: step 16 create channel. Replace declaration with code from code lab.
             long channelId = TvUtil.createChannel(mContext, subscription);
 
             subscription.setChannelId(channelId);
