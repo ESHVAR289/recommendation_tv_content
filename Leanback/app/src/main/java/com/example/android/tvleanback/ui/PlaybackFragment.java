@@ -22,8 +22,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.leanback.app.VideoFragment;
-import androidx.leanback.app.VideoFragmentGlueHost;
+
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.leanback.app.VideoSupportFragment;
 import androidx.leanback.app.VideoSupportFragmentGlueHost;
 import androidx.leanback.media.PlaybackGlue;
@@ -38,7 +38,6 @@ import androidx.leanback.widget.OnItemViewClickedListener;
 import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -49,6 +48,7 @@ import com.example.android.tvleanback.model.Playlist;
 import com.example.android.tvleanback.model.Video;
 import com.example.android.tvleanback.model.VideoCursorMapper;
 import com.example.android.tvleanback.player.VideoPlayerGlue;
+import com.example.android.tvleanback.player.WatchNextAdapter;
 import com.example.android.tvleanback.presenter.CardPresenter;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -85,12 +85,17 @@ public class PlaybackFragment extends VideoSupportFragment {
     private Playlist mPlaylist;
     private VideoLoaderCallbacks mVideoLoaderCallbacks;
     private CursorObjectAdapter mVideoCursorAdapter;
+    private long mChannelId;
+    private long mStartingPosition;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mVideo = getActivity().getIntent().getParcelableExtra(VideoDetailsActivity.VIDEO);
+        mChannelId = getActivity().getIntent().getLongExtra(VideoDetailsActivity.EXTRA_CHANNEL_ID, -1L);
+        mStartingPosition =
+                getActivity().getIntent().getLongExtra(VideoDetailsActivity.EXTRA_POSITION, -1L);
         mPlaylist = new Playlist();
 
         mVideoLoaderCallbacks = new VideoLoaderCallbacks(mPlaylist);
@@ -154,6 +159,26 @@ public class PlaybackFragment extends VideoSupportFragment {
         mPlayerGlue = new VideoPlayerGlue(getActivity(), mPlayerAdapter, mPlaylistActionListener);
         mPlayerGlue.setHost(new VideoSupportFragmentGlueHost(this));
         mPlayerGlue.playWhenPrepared();
+        mPlayerGlue.addPlayerCallback(
+                new PlaybackGlue.PlayerCallback() {
+                    WatchNextAdapter watchNextAdapter = new WatchNextAdapter();
+
+                    @Override
+                    public void onPlayStateChanged(PlaybackGlue glue) {
+                        super.onPlayStateChanged(glue);
+                        long position = mPlayerGlue.getCurrentPosition();
+                        long duration = mPlayerGlue.getDuration();
+                        watchNextAdapter.updateProgress(
+                                getContext(), mChannelId, mVideo, position, duration);
+                    }
+
+                    @Override
+                    public void onPlayCompleted(PlaybackGlue glue) {
+                        super.onPlayCompleted(glue);
+                        watchNextAdapter.removeFromWatchNext(
+                                getContext(), mChannelId, mVideo);
+                    }
+                });
 
         play(mVideo);
 
